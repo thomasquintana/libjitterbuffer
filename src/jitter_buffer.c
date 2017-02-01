@@ -30,7 +30,7 @@
 
 /* Jitter Buffer Run-Time */
 #include "jitter_buffer.h"
-#include "spinlock.h"
+#include "spin_lock.h"
 
 typedef struct jitter_buffer_frame {
   unsigned char *data;
@@ -44,7 +44,7 @@ typedef struct jitter_buffer {
   unsigned int             tail;
   unsigned int             size;
   jitter_buffer_frame_t   *frames;
-  spinlock_t              *lock;
+  spin_lock_t              *lock;
 } jitter_buffer_t;
 
 jitter_buffer_t* jb_create(unsigned int buffer_size, unsigned int frame_size) {
@@ -69,64 +69,64 @@ jitter_buffer_t* jb_create(unsigned int buffer_size, unsigned int frame_size) {
     buffer->frames[idx].size = frame_size;
   }
   /* Initialize the jitter buffer lock. */
-  buffer->lock = spinlock_create();
+  buffer->lock = spin_lock_create();
   return buffer;
 }
 
 void jb_destroy(jitter_buffer_t *buffer) {
-  spinlock_destroy(buffer->lock);
+  spin_lock_destroy(buffer->lock);
   free(buffer);
 }
 
 unsigned int jb_count(jitter_buffer_t *buffer) {
-  spinlock_acquire(buffer->lock);
+  spin_lock_acquire(buffer->lock);
   unsigned int result = buffer->count;
-  spinlock_release(buffer->lock);
+  spin_lock_release(buffer->lock);
   return result;
 }
 
 void jb_flush(jitter_buffer_t *buffer) {
-  spinlock_acquire(buffer->lock);
+  spin_lock_acquire(buffer->lock);
   buffer->head = 0;
   buffer->tail = 0;
   buffer->count = 0;
-  spinlock_release(buffer->lock);
+  spin_lock_release(buffer->lock);
 }
 
 bool jb_get(jitter_buffer_t *buffer, void *data) {
-  spinlock_acquire(buffer->lock);
+  spin_lock_acquire(buffer->lock);
   if (buffer->count == 0) {
-    spinlock_release(buffer->lock);
+    spin_lock_release(buffer->lock);
     return false;
   }
   jitter_buffer_frame_t *frame = &buffer->frames[buffer->head];
   memcpy(data, frame->data, frame->size);
   buffer->head = (buffer->head + 1) % buffer->size;
   buffer->count--;
-  spinlock_release(buffer->lock);
+  spin_lock_release(buffer->lock);
   return true;
 }
 
 inline bool jb_is_empty(jitter_buffer_t *buffer) {
-  spinlock_acquire(buffer->lock);
+  spin_lock_acquire(buffer->lock);
   bool result = buffer->count == 0 ? true : false;
-  spinlock_release(buffer->lock);
+  spin_lock_release(buffer->lock);
   return result;
 }
 
 inline bool jb_is_full(jitter_buffer_t *buffer) {
-  spinlock_acquire(buffer->lock);
+  spin_lock_acquire(buffer->lock);
   bool result = buffer->count == buffer->size ? true : false;
-  spinlock_release(buffer->lock);
+  spin_lock_release(buffer->lock);
   return result;
 }
 
 bool jb_put(jitter_buffer_t *buffer, void *data, unsigned int seq) {
-  spinlock_acquire(buffer->lock);
+  spin_lock_acquire(buffer->lock);
   /* Handle late packet arrivals. */
   jitter_buffer_frame_t *head = &buffer->frames[buffer->head];
   if (seq < head->seq) {
-    spinlock_release(buffer->lock);
+    spin_lock_release(buffer->lock);
     return false;
   }
   /* Handle buffer overflows. */
@@ -167,6 +167,6 @@ bool jb_put(jitter_buffer_t *buffer, void *data, unsigned int seq) {
       }
     }
   }
-  spinlock_release(buffer->lock);
+  spin_lock_release(buffer->lock);
   return true;
 }

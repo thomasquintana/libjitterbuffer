@@ -25,8 +25,8 @@
  * PART.                                                                      *
  ******************************************************************************/
 
-#ifndef SPINLOCK_H
-#define SPINLOCK_H
+#ifndef SPIN_LOCK_H
+#define SPIN_LOCK_H
 
 #include <stddef.h>
 #include <stdlib.h>
@@ -35,7 +35,7 @@
  * A spin lock is a non-blocking lock used for protecting shared resources or
  * critical sections of code.
  */
-typedef unsigned int spinlock_t;
+typedef unsigned int spin_lock_t;
 
 /**
  * Acquire a lock.
@@ -44,7 +44,7 @@ typedef unsigned int spinlock_t;
  *
  * @return Void.
  */
-#define spinlock_acquire(lock) { \
+#define spin_lock_acquire(lock) { \
   while(__sync_val_compare_and_swap((lock), 0, 1)) { \
     asm volatile("pause\n": : :"memory"); \
   } \
@@ -55,7 +55,7 @@ typedef unsigned int spinlock_t;
  *
  * @return A new spin lock.
  */
-#define spinlock_create() ((spinlock_t*)calloc(1, sizeof(spinlock_t)))
+#define spin_lock_create() ((spin_lock_t*)calloc(1, sizeof(spin_lock_t)))
 
 /**
  * Destroy a spin lock.
@@ -64,7 +64,7 @@ typedef unsigned int spinlock_t;
  *
  * @return Void.
  */
-#define spinlock_destroy(lock) free(lock)
+#define spin_lock_destroy(lock) free(lock)
 
 /**
  * Release a spin lock.
@@ -73,9 +73,9 @@ typedef unsigned int spinlock_t;
  *
  * @return Void.
  */
-#define spinlock_release(lock) { \
+#define spin_lock_release(lock) { \
   asm volatile("": : :"memory"); \
   *(lock) = 0; \
 }
 
-#endif /* SPINLOCK_H */
+#endif /* SPIN_LOCK_H */
