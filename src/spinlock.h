@@ -31,18 +31,48 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+/**
+ * A spin lock is a non-blocking lock used for protecting shared resources or
+ * critical sections of code.
+ */
 typedef unsigned int spinlock_t;
 
+/**
+ * Acquire a lock.
+ *
+ * @param lock A spin lock.
+ *
+ * @return Void.
+ */
 #define spinlock_acquire(lock) { \
   while(__sync_val_compare_and_swap((lock), 0, 1)) { \
     asm volatile("pause\n": : :"memory"); \
   } \
 }
 
+/**
+ * Create a new spin lock.
+ *
+ * @return A new spin lock.
+ */
 #define spinlock_create() ((spinlock_t*)calloc(1, sizeof(spinlock_t)))
 
+/**
+ * Destroy a spin lock.
+ *
+ * @param lock A spin lock.
+ *
+ * @return Void.
+ */
 #define spinlock_destroy(lock) free(lock)
 
+/**
+ * Release a spin lock.
+ *
+ * @param lock A spin lock.
+ *
+ * @return Void.
+ */
 #define spinlock_release(lock) { \
   asm volatile("": : :"memory"); \
   *(lock) = 0; \

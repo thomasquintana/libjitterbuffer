@@ -47,9 +47,9 @@ typedef struct jitter_buffer {
   spinlock_t              *lock;
 } jitter_buffer_t;
 
-jitter_buffer_t* jb_create(unsigned int buffer_size, unsigned int data_size) {
+jitter_buffer_t* jb_create(unsigned int buffer_size, unsigned int frame_size) {
   /* Allocate all the memory necessary for the jitter buffer. */
-  unsigned int size = sizeof(jitter_buffer_frame_t) + data_size;
+  unsigned int size = sizeof(jitter_buffer_frame_t) + frame_size;
   size *= buffer_size;
   size += sizeof(jitter_buffer_t);
   unsigned char *temp = (unsigned char*)malloc(size);
@@ -65,8 +65,8 @@ jitter_buffer_t* jb_create(unsigned int buffer_size, unsigned int data_size) {
   unsigned int offset = sizeof(jitter_buffer_frame_t) * buffer_size;
   offset += sizeof(jitter_buffer_t);
   for (unsigned int idx = 0; idx < buffer_size; idx++) {
-    buffer->frames[idx].data = &temp[offset + (idx * data_size)];
-    buffer->frames[idx].size = data_size;
+    buffer->frames[idx].data = &temp[offset + (idx * frame_size)];
+    buffer->frames[idx].size = frame_size;
   }
   /* Initialize the jitter buffer lock. */
   buffer->lock = spinlock_create();
