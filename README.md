@@ -18,7 +18,7 @@ $] cd libjitterbuffer
 $] scons
 ```
 
-Once, `libspectrum` is compiled run the unit tests.
+Once, `libjitterbuffer` is compiled run the unit tests.
 
 ```
 $] tests/test_runner
