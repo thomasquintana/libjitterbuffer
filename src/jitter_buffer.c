@@ -44,7 +44,7 @@ typedef struct jitter_buffer {
   unsigned int             tail;
   unsigned int             size;
   jitter_buffer_frame_t   *frames;
-  spin_lock_t              *lock;
+  spin_lock_t             *lock;
 } jitter_buffer_t;
 
 jitter_buffer_t* jb_create(unsigned int buffer_size, unsigned int frame_size) {
