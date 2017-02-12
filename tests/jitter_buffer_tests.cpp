@@ -17,8 +17,8 @@
  * under the License.
  */
 
-/** @file rbt_tests.cpp
- *  @brief Tests the red-black trees interface.
+/** @file jitter_buffer_tests.cpp
+ *  @brief Tests the jitter buffer interface.
  *
  *  @author Thomas Quintana (quintana.thomas@gmail.com)
  *  @bug No known bugs.

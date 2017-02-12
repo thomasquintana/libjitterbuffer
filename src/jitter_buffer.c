@@ -39,12 +39,12 @@ typedef struct jitter_buffer_frame {
 } jitter_buffer_frame_t;
 
 typedef struct jitter_buffer {
-  unsigned int             count;
-  unsigned int             head;
-  unsigned int             tail;
-  unsigned int             size;
-  jitter_buffer_frame_t   *frames;
-  spin_lock_t             *lock;
+  unsigned int                count;
+  unsigned int                head;
+  unsigned int                tail;
+  unsigned int                size;
+  struct jitter_buffer_frame *frames;
+  spin_lock_t                *lock;
 } jitter_buffer_t;
 
 jitter_buffer_t* jb_create(unsigned int buffer_size, unsigned int frame_size) {
